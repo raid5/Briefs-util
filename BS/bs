@@ -46,7 +46,6 @@
 =end
 
 require 'optparse' 
-require 'rdoc/usage'
 require 'ostruct'
 require 'date'
 
@@ -71,7 +70,7 @@ ACTION_LANG = {
 # End Action Language Definition #############################################
 
 class App
-  VERSION = '0.1'
+  VERSION = '0.2'
   
   attr_reader :options
 
@@ -112,18 +111,21 @@ class App
     def parsed_options?
       
       # Specify options
-      opts = OptionParser.new 
-      opts.on('-v', '--version')    { output_version ; exit 0 }
-      opts.on('-h', '--help')       { output_help }
-      opts.on('-V', '--verbose')    { @options.verbose = true }  
-      opts.on('-q', '--quiet')      { @options.quiet = true }
-      opts.on('-o', '--output', 
-              '=OUTFILE', 
-              "Output file name")   { |arg| @options.outfile = arg }
+      @opts = OptionParser.new 
+      @opts.on('-v', '--version')    { output_version ; exit 0 }
+      @opts.on('-h', '--help')       { puts @opts ; exit }
+      @opts.on('-V', '--verbose')    { @options.verbose = true }  
+      @opts.on('-q', '--quiet')      { @options.quiet = true }
+      @opts.on('-o', '--output', 
+               '=OUTFILE', 
+               "Output file name")   { |arg| @options.outfile = arg }
       
       # TO DO - add additional options
+      
+      # Banner
+      @opts.banner = "Usage: bs [options] file"
             
-      opts.parse!(@arguments) rescue return false
+      @opts.parse!(@arguments) rescue return false
       
       process_options
       true      
@@ -158,13 +160,9 @@ class App
 
     end
     
-    def output_help
-      output_version
-      RDoc::usage() #exits app
-    end
-    
     def output_usage
-      RDoc::usage('usage') # gets usage from comments above
+      puts @opts
+      exit
     end
     
     def output_version
